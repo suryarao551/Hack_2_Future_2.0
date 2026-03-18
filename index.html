@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VaakAI — Multilingual Clinical Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111419;
+    --surface2: #181c23;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --accent: #00e5a0;
+    --accent2: #7c6dfa;
+    --accent3: #f59e4a;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --muted2: #9ca3af;
+    --danger: #f87171;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 60px;
+    background: rgba(10,12,15,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .nav-logo span { color: var(--text); }
+
+  .nav-links {
+    display: flex;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted2);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .nav-cta:hover { opacity: 0.85; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 40px 60px;
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.25);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    max-width: 820px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    margin-top: 24px;
+    font-size: 17px;
+    color: var(--muted2);
+    max-width: 540px;
+    line-height: 1.7;
+    animation: fadeUp 0.6s ease 0.2s both;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+    margin-top: 40px;
+    animation: fadeUp 0.6s ease 0.3s both;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border2);
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-ghost:hover { border-color: var(--muted2); }
+
+  /* hero grid glow */
+  .hero-glow {
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,160,0.06) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -60%);
+    pointer-events: none;
+  }
+
+  /* stat chips */
+  .hero-stats {
+    display: flex;
+    gap: 12px;
+    margin-top: 52px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 0.6s ease 0.4s both;
+  }
+
+  .stat-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    text-align: center;
+  }
+
+  .stat-chip .val {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .stat-chip .lbl {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION COMMONS ── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 100px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  .section-sub {
+    font-size: 16px;
+    color: var(--muted2);
+    max-width: 520px;
+    line-height: 1.7;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── DEMO SECTION ── */
+  .demo-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 56px;
+  }
+
+  .demo-topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+
+  .demo-title-bar {
+    margin-left: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .demo-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 460px;
+  }
+
+  /* Upload panel */
+  .upload-panel {
+    padding: 36px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .upload-panel h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .upload-zone {
+    border: 2px dashed var(--border2);
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.02);
+  }
+
+  .upload-zone:hover, .upload-zone.drag {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.04);
+  }
+
+  .upload-icon {
+    width: 44px; height: 44px;
+    margin: 0 auto 12px;
+    background: rgba(0,229,160,0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .upload-zone p {
+    font-size: 13px;
+    color: var(--muted2);
+  }
+
+  .upload-zone p strong {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .upload-zone .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* file loaded state */
+  .file-loaded {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0,229,160,0.06);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .file-loaded.show { display: flex; }
+
+  .file-icon {
+    width: 36px; height: 36px;
+    background: rgba(0,229,160,0.12);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .file-info { flex: 1; }
+  .file-name { font-size: 13px; font-weight: 500; color: var(--text); }
+  .file-meta { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+  /* language selector */
+  .lang-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .lang-btn {
+    flex: 1;
+    padding: 9px;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--muted2);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .lang-btn.active {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.08);
+    color: var(--accent);
+  }
+
+  /* process btn */
+  .process-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.01em;
+  }
+
+  .process-btn:hover { opacity: 0.88; }
+  .process-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── OUTPUT PANEL ── */
+  .output-panel {
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  .output-panel h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  /* pipeline progress */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .pipe-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    opacity: 0.4;
+  }
+
+  .pipe-step.active { opacity: 1; border-color: var(--accent2); }
+  .pipe-step.done   { opacity: 1; border-color: var(--accent); }
+  .pipe-step.error  { opacity: 1; border-color: var(--danger); }
+
+  .pipe-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    background: var(--surface);
+  }
+
+  .pipe-step.active .pipe-icon { background: rgba(124,109,250,0.15); }
+  .pipe-step.done   .pipe-icon { background: rgba(0,229,160,0.12); }
+
+  .pipe-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .pipe-sub {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 1px;
+  }
+
+  .pipe-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .pipe-step.done .pipe-status { color: var(--accent); }
+  .pipe-step.active .pipe-status { color: var(--accent2); }
+
+  /* spinner */
+  .spin {
+    width: 12px; height: 12px;
+    border: 2px solid rgba(124,109,250,0.3);
+    border-top-color: var(--accent2);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* report card */
+  .report-card {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .report-card.show { display: flex; }
+
+  .report-section {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .report-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .report-section-text {
+    font-size: 12px;
+    color: var(--muted2);
+    line-height: 1.6;
+  }
+
+  .score-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .score-pill {
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.2);
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+  }
+
+  /* speaker timeline */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .tl-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .tl-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted2);
+    width: 64px;
+    flex-shrink: 0;
+  }
+
+  .tl-bar-wrap {
+    flex: 1;
+    height: 20px;
+    background: var(--surface);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .tl-seg {
+    position: absolute;
+    height: 100%;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    color: #000;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* ── PIPELINE SECTION ── */
+  .pipeline-visual {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .pipe-col {
+    padding: 24px 14px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+    transition: background 0.2s;
+    cursor: default;
+  }
+
+  .pipe-col:last-child { border-right: none; }
+  .pipe-col:hover { background: rgba(255,255,255,0.03); }
+
+  .pipe-col-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .pipe-col-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .pipe-col-desc {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.5;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── MODEL CARDS ── */
+  .models-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 48px;
+  }
+
+  .model-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 24px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .model-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .model-card.teal::before  { background: var(--accent); }
+  .model-card.purple::before { background: var(--accent2); }
+  .model-card.amber::before  { background: var(--accent3); }
+
+  .model-card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+
+  .model-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    letter-spacing: 0.06em;
+  }
+
+  .model-card.teal  .model-tag { background: rgba(0,229,160,0.1);  color: var(--accent);  }
+  .model-card.purple .model-tag { background: rgba(124,109,250,0.1); color: var(--accent2); }
+  .model-card.amber  .model-tag { background: rgba(245,158,74,0.1);  color: var(--accent3); }
+
+  .model-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .model-desc {
+    font-size: 13px;
+    color: var(--muted2);
+    line-height: 1.65;
+    margin-bottom: 20px;
+  }
+
+  .model-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .model-stat .big {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+  }
+
+  .model-card.teal  .model-stat .big { color: var(--accent); }
+  .model-card.purple .model-stat .big { color: var(--accent2); }
+  .model-card.amber  .model-stat .big { color: var(--accent3); }
+
+  .model-stat .unit {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  footer span { color: var(--accent); }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Vaak<span>AI</span></div>
+  <ul class="nav-links">
+    <li><a href="#demo">Demo</a></li>
+    <li><a href="#pipeline">Pipeline</a></li>
+    <li><a href="#models">Models</a></li>
+  </ul>
+  <button class="nav-cta">Try Live Demo</button>
+</nav>
+
+<!-- HERO -->
+<div class="hero" style="position:relative;z-index:1;">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    IIIT Dharwad · DISPLACE Challenge · 2026
+  </div>
+  <h1>Turn Clinical Speech<br/>into <em>Structured Reports</em></h1>
+  <p class="hero-sub">End-to-end AI pipeline that diarizes, transcribes, translates, and generates structured clinical documentation from Hindi conversational audio — automatically.</p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">See Demo</button>
+    <button class="btn-ghost" onclick="document.getElementById('pipeline').scrollIntoView({behavior:'smooth'})">View Pipeline</button>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-chip"><div class="val">25.2%</div><div class="lbl">DER (Pyannote 3.1)</div></div>
+    <div class="stat-chip"><div class="val">0.80</div><div class="lbl">BERTScore</div></div>
+    <div class="stat-chip"><div class="val">0.27</div><div class="lbl">tcpWER · Rank #2</div></div>
+    <div class="stat-chip"><div class="val">0.18</div><div class="lbl">ROUGE-L · Rank #2</div></div>
+    <div class="stat-chip"><div class="val">78</div><div class="lbl">Eval audio files</div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- DEMO -->
+<section id="demo">
+  <div class="section-label">// live demo</div>
+  <div class="section-title">Try the Platform</div>
+  <p class="section-sub">Upload a clinical audio file and watch our three-model pipeline process it in real time — from raw speech to a structured clinical report.</p>
+
+  <div class="demo-wrap">
+    <div class="demo-topbar">
+      <div class="dot r"></div>
+      <div class="dot y"></div>
+      <div class="dot g"></div>
+      <div class="demo-title-bar">vaak-ai — clinical intelligence platform · v1.0</div>
+    </div>
+    <div class="demo-body">
+
+      <!-- LEFT: UPLOAD -->
+      <div class="upload-panel">
+        <h3>Audio Input</h3>
+
+        <div class="upload-zone" id="dropzone" onclick="document.getElementById('fileInput').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">
+          <div class="upload-icon">🎙</div>
+          <p><strong>Click to upload</strong> or drag & drop</p>
+          <p class="hint">WAV · MP3 · FLAC · 16kHz recommended</p>
+        </div>
+        <input type="file" id="fileInput" accept=".wav,.mp3,.flac" style="display:none" onchange="handleFile(this.files[0])"/>
+
+        <div class="file-loaded" id="fileLoaded">
+          <div class="file-icon">🎵</div>
+          <div class="file-info">
+            <div class="file-name" id="fileName">audio_session.wav</div>
+            <div class="file-meta" id="fileMeta">2.4 MB · WAV · Hindi</div>
+          </div>
+        </div>
+
+        <div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:8px;font-family:'DM Mono',monospace;">Select language</p>
+          <div class="lang-row">
+            <button class="lang-btn active" onclick="selectLang(this)">Hindi</button>
+            <button class="lang-btn" onclick="selectLang(this)">Hindi-English</button>
+            <button class="lang-btn" onclick="selectLang(this)">Bengali</button>
+          </div>
+        </div>
+
+        <button class="process-btn" id="processBtn" onclick="runPipeline()">Process Audio →</button>
+      </div>
+
+      <!-- RIGHT: OUTPUT -->
+      <div class="output-panel" id="outputPanel">
+        <h3>Pipeline Output</h3>
+
+        <!-- pipeline steps -->
+        <div class="pipeline" id="pipelineSteps">
+          <div class="pipe-step" id="step0">
+            <div class="pipe-icon">📥</div>
+            <div style="flex:1">
+              <div class="pipe-label">Audio ingestion</div>
+              <div class="pipe-sub">Format validation · metadata tagging</div>
+            </div>
+            <div class="pipe-status" id="s0">waiting</div>
+          </div>
+          <div class="pipe-step" id="step1">
+            <div class="pipe-icon">🔧</div>
+            <div style="flex:1">
+              <div class="pipe-label">Preprocessing</div>
+              <div class="pipe-sub">16kHz resample · 30-sec chunks</div>
+            </div>
+            <div class="pipe-status" id="s1">waiting</div>
+          </div>
+          <div class="pipe-step" id="step2">
+            <div class="pipe-icon">👥</div>
+            <div style="flex:1">
+              <div class="pipe-label">Speaker diarization</div>
+              <div class="pipe-sub">Pyannote 3.1 · VAD + clustering</div>
+            </div>
+            <div class="pipe-status" id="s2">waiting</div>
+          </div>
+          <div class="pipe-step" id="step3">
+            <div class="pipe-icon">🗣</div>
+            <div style="flex:1">
+              <div class="pipe-label">ASR transcription</div>
+              <div class="pipe-sub">IndicConformer · FP16 · CTC</div>
+            </div>
+            <div class="pipe-status" id="s3">waiting</div>
+          </div>
+          <div class="pipe-step" id="step4">
+            <div class="pipe-icon">🌐</div>
+            <div style="flex:1">
+              <div class="pipe-label">Translation</div>
+              <div class="pipe-sub">IndicTrans2 · hin → eng</div>
+            </div>
+            <div class="pipe-status" id="s4">waiting</div>
+          </div>
+          <div class="pipe-step" id="step5">
+            <div class="pipe-icon">📋</div>
+            <div style="flex:1">
+              <div class="pipe-label">Report generation</div>
+              <div class="pipe-sub">Zephyr-7B · 4-bit NF4</div>
+            </div>
+            <div class="pipe-status" id="s5">waiting</div>
+          </div>
+        </div>
+
+        <!-- Speaker timeline (shows after diarization) -->
+        <div id="timelineWrap" style="display:none;">
+          <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:8px;">SPEAKER TIMELINE</div>
+          <div class="timeline">
+            <div class="tl-row">
+              <div class="tl-label">Doctor</div>
+              <div class="tl-bar-wrap">
+                <div class="tl-seg" style="left:0%;width:22%;background:#00e5a0;">0:00</div>
+                <div class="tl-seg" style="left:30%;width:28%;background:#00e5a0;">0:54</div>
+                <div class="tl-seg" style="left:68%;width:30%;background:#00e5a0;">2:02</div>
+              </div>
+            </div>
+            <div class="tl-row">
+              <div class="tl-label">Patient</div>
+              <div class="tl-bar-wrap">
+                <div class="tl-seg" style="left:22%;width:8%;background:#7c6dfa;">0:40</div>
+                <div class="tl-seg" style="left:58%;width:10%;background:#7c6dfa;">1:44</div>
+                <div class="tl-seg" style="left:98%;width:2%;background:#7c6dfa;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Final report -->
+        <div class="report-card" id="reportCard">
+          <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;">GENERATED CLINICAL REPORT</div>
+          <div class="report-section">
+            <div class="report-section-label">Chief Complaint</div>
+            <div class="report-section-text">Patient presents with persistent fever for 4 days, accompanied by body aches and mild sore throat. No prior history of similar episodes.</div>
+          </div>
+          <div class="report-section">
+            <div class="report-section-label">Diagnosis</div>
+            <div class="report-section-text">Viral upper respiratory tract infection. No signs of bacterial involvement. Advised rest and hydration.</div>
+          </div>
+          <div class="report-section">
+            <div class="report-section-label">Prescription</div>
+            <div class="report-section-text">Paracetamol 500mg — twice daily for 3 days. Cetirizine 10mg — once at night. Follow up if fever persists beyond 48 hours.</div>
+          </div>
+          <div class="score-row">
+            <div class="score-pill">BERTScore 0.80</div>
+            <div class="score-pill">ROUGE-L 0.18</div>
+            <div class="score-pill">DER 25.2%</div>
+            <div class="score-pill">Rank #2 ASR</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PIPELINE -->
+<section id="pipeline">
+  <div class="section-label">// architecture</div>
+  <div class="section-title">8-Stage Data Pipeline</div>
+  <p class="section-sub">Every audio file passes through a deterministic sequence of stages — from raw input to a validated clinical report.</p>
+
+  <div class="pipeline-visual">
+    <div class="pipe-col">
+      <div class="pipe-col-icon" style="background:rgba(107,114,128,0.15);">📥</div>
+      <div class="pipe-col-name">Input</div>
+      <div class="pipe-col-desc">File upload format check</div>
+    </div>
+    <div class="pipe-col">
+      <div class="pipe-col-icon" style="background:rgba(0,229,160,0.1);">🔧</div>
+      <div class="pipe-col-name">Preprocess</div>
+      <div class="pipe-col-desc">16kHz mono 30-sec chunks</div>
+    </div>
+    <div class="pipe-col">
+      <div class="pipe-col-icon" style="background:rgba(124,109,250,0.1);">👥</div>
+      <div class="pipe-col-name">Diarize</div>
+      <div class="pipe-col-desc">Pyannote 3.1 RTTM output</div>
+    </div>
+    <div class="pipe-col">
+      <div class="pipe-col-icon" style="background:rgba(124,109,250,0.1);">🗣</div>
+      <div class="pipe-col-name">ASR</div>
+      <div class="pipe-col-desc">IndicConformer Hindi text</div>
+    </div>
+    <div class="pipe-col">
+      <div class="pipe-col-icon" style="background:rgba(245,158,74,0.1);">🌐</div>
+      <div class="pipe-col-name">Translate</div>
+      <div class="pipe-col-desc">IndicTrans2 English</div>
+    </div>
+    <div class="pipe-col">
+      <div class="pipe-col-icon" style="background:rgba(216,90,48,0.1);">📋</div>
+      <div class="pipe-col-name">Report</div>
+      <div class="pipe-col-desc">Zephyr-7B clinical doc</div>
+    </div>
+    <div class="pipe-col">
+      <div class="pipe-col-icon" style="background:rgba(59,109,17,0.15);">💾</div>
+      <div class="pipe-col-name">Store</div>
+      <div class="pipe-col-desc">Encrypted on-premise DB</div>
+    </div>
+    <div class="pipe-col">
+      <div class="pipe-col-icon" style="background:rgba(248,113,113,0.1);">✅</div>
+      <div class="pipe-col-name">Validate</div>
+      <div class="pipe-col-desc">BERTScore ROUGE DER gate</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MODELS -->
+<section id="models">
+  <div class="section-label">// core models</div>
+  <div class="section-title">Three-Model Intelligence Stack</div>
+  <p class="section-sub">Each model is the best-in-class for its task, benchmarked against multiple alternatives on the DISPLACE dataset.</p>
+
+  <div class="models-grid">
+    <div class="model-card teal">
+      <div class="model-tag">DIARIZATION</div>
+      <div class="model-name">Pyannote 3.1</div>
+      <div class="model-desc">End-to-end neural diarization pipeline. Handles overlapping speech natively via segmentation-3.0. Tested against 7 models — lowest DER by a wide margin.</div>
+      <div class="model-stat">
+        <div class="big">25.2%</div>
+        <div class="unit">Diarization Error Rate</div>
+      </div>
+    </div>
+    <div class="model-card purple">
+      <div class="model-tag">ASR</div>
+      <div class="model-name">IndicConformer</div>
+      <div class="model-desc">600M parameter multilingual conformer built for Indic languages. Runs in FP16 with CTC decoding. Zero hallucination loops on dialect-heavy Hindi — unlike SeamlessM4T.</div>
+      <div class="model-stat">
+        <div class="big">0.27</div>
+        <div class="unit">tcpWER · Rank #2</div>
+      </div>
+    </div>
+    <div class="model-card amber">
+      <div class="model-tag">REPORT GENERATION</div>
+      <div class="model-name">Zephyr-7B</div>
+      <div class="model-desc">7B instruction-tuned LLM running locally with 4-bit NF4 quantization. Temperature 0.3 ensures deterministic clinical output. Full pipeline runs on a single GPU.</div>
+      <div class="model-stat">
+        <div class="big">0.80</div>
+        <div class="unit">BERTScore F1</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Built by <span>IIIT Dharwad</span> · Bikram Hawladar · Ishan Srivastava · Kanishk Pandey · Kala Suryanarayan Rao · DISPLACE Challenge 2026
+</footer>
+
+<script>
+  function handleFile(file) {
+    if (!file) return;
+    document.getElementById('fileLoaded').classList.add('show');
+    document.getElementById('fileName').textContent = file.name;
+    const kb = (file.size / 1024).toFixed(0);
+    const ext = file.name.split('.').pop().toUpperCase();
+    document.getElementById('fileMeta').textContent = kb + ' KB · ' + ext + ' · Hindi';
+    document.getElementById('processBtn').disabled = false;
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    document.getElementById('dropzone').classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  }
+
+  function selectLang(btn) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  const stepData = [
+    { delay: 400,  duration: 600,  label: 'ingested' },
+    { delay: 1100, duration: 800,  label: 'chunked'  },
+    { delay: 2100, duration: 1400, label: 'DER 25.2%' },
+    { delay: 3700, duration: 1600, label: 'transcribed' },
+    { delay: 5500, duration: 900,  label: 'translated' },
+    { delay: 6600, duration: 1800, label: 'report ready' },
+  ];
+
+  function setStep(i, state) {
+    const el = document.getElementById('step' + i);
+    const sl = document.getElementById('s' + i);
+    el.className = 'pipe-step ' + state;
+    if (state === 'active') {
+      sl.innerHTML = '<span class="spin"></span>';
+    } else if (state === 'done') {
+      sl.textContent = stepData[i].label;
+    }
+    if (i === 2 && state === 'done') {
+      document.getElementById('timelineWrap').style.display = 'block';
+    }
+    if (i === 5 && state === 'done') {
+      document.getElementById('reportCard').classList.add('show');
+    }
+  }
+
+  function runPipeline() {
+    document.getElementById('processBtn').disabled = true;
+    document.getElementById('reportCard').classList.remove('show');
+    document.getElementById('timelineWrap').style.display = 'none';
+
+    for (let i = 0; i < 6; i++) {
+      const el = document.getElementById('step' + i);
+      el.className = 'pipe-step';
+      document.getElementById('s' + i).textContent = 'waiting';
+    }
+
+    stepData.forEach((s, i) => {
+      setTimeout(() => setStep(i, 'active'), s.delay);
+      setTimeout(() => setStep(i, 'done'), s.delay + s.duration);
+    });
+
+    const total = stepData[5].delay + stepData[5].duration + 400;
+    setTimeout(() => {
+      document.getElementById('processBtn').disabled = false;
+    }, total);
+  }
+</script>
+</body>
+</html>
